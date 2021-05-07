@@ -5,7 +5,7 @@
   "scripts": {
     "bot": "./index.js"
   },
-  "license": "AGPLv3+",
+  "license": "AGPL-3.0-or-later",
   "dependencies": {
     "discord.js": "^12.5.1",
     "dotenv": "^9.0.0"

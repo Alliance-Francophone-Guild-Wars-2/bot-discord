@@ -7,8 +7,10 @@ Discord : https://discord.gg/DuGmp9R
 Créer un fichier `.env` contenant :
 
 ```
-GUILD_ID=469838481770938368
 TOKEN=<token obtenu via l’interface de gestion Discord>
+GUILD_ID=469838481770938368
+MESSAGE_ROLES=840153512402223114
+MESSAGE_ROLES_WvW=840235220804173854
 ```
 
 Lancer le bot via `yarn run bot`.
