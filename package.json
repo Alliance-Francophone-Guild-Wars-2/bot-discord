@@ -1,0 +1,13 @@
+{
+  "name": "BPBot",
+  "version": "1.0.0",
+  "bin": "./index.js",
+  "scripts": {
+    "bot": "./index.js"
+  },
+  "license": "AGPLv3+",
+  "dependencies": {
+    "discord.js": "^12.5.1",
+    "dotenv": "^9.0.0"
+  }
+}
