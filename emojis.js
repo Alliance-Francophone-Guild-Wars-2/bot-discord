@@ -13,9 +13,7 @@ module.exports = class Emojis {
     static process(guild, text) {
         const emojies = Emojis.emojis(guild)
         for(const [n, e] of emojies) {
-            console.info(n, e, typeof(text))
             text = text.replace(new RegExp(`:${n}:`, "g"), e)
-            console.info(text)
         }
         return text
     }

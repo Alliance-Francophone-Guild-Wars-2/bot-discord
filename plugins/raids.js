@@ -56,15 +56,38 @@ module.exports = class Raids extends Plugin {
 		return registrations
 	}
 
+	split_in_fields(texts) {
+		const fields = []
+		let current = ""
+		for(let text of texts) {
+			const old = current
+			if (current.length > 0) current = current.concat("\n")
+			current = current.concat(text)
+			if (current.length > 1024) {
+				fields.push(old)
+				current = text
+			}
+		}
+		if (current.length > 0) fields.push(current)
+		return fields
+	}
+
 	async update_registrations(message) {
 		const guild = message.guild
 		let registrations = await this.calculate_registrations(message)
 		registrations = Array.from(registrations)
 			.map(([name, roles]) => `${name} ${roles.map(r => Emojis.emoji(guild, r)).join("")}`)
-			.join("\n")
+			.sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()))
 		const embed = new Discord.MessageEmbed(message.embeds[0])
 		embed.fields = []
-		if (registrations != "") embed.addField('Inscrits', registrations)
+		if (registrations.length > 0) {
+			const fields = this.split_in_fields(registrations)
+			let first = true
+			for (const field of fields) {
+				embed.addField(first ? "Inscrits" : "\u200b", field)
+				first = false
+			}
+		}
 		message.edit(embed)
 	}
 
