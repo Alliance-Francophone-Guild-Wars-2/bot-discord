@@ -14,7 +14,8 @@ module.exports = class Raids extends Plugin {
 		["warrior_berserker", "Bannerslave"],
 		["Protection", "Tank"],
 		["guardian_dragonhunter_", "pDPS"],
-		["ele_tempest", "cDPS"]
+		["ele_tempest", "cDPS"],
+		["commander_blue", "Commandant"]
 	])
 	UNREGISTER = "❌"
 

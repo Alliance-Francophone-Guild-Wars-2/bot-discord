@@ -8,6 +8,7 @@ Merci de vous inscrire à cette sortie en cliquant sur les réactions associées
   - :Protection: Tank
   - :guardian_dragonhunter_: pDPS (DH, animorphe…)
   - :ele_tempest: cDPS (CFB…)
+  - :commander_blue: Commandant
 
 Pour toute précision supplémentaire (association avec un autre joueur, etc), ajouter un commentaire sous ce message :blush:
 Vous pouvez vous désinscrire en cliquant sur :x: ou retirer certains de vos rôles en cliquant à nouveau sur les réactions
