@@ -112,8 +112,10 @@ module.exports = class Raids extends Plugin {
 			const channel_name = this.CHANNEL_NAME(date)
 			const guild = message.guild
 
-			const channel = await guild.channels.create(channel_name,
-				{ type: "text", parent: category, position: position })
+			const channels = category.children
+			const channel = channels.find(c => c.name == channel_name)
+			// const channel = await guild.channels.create(channel_name,
+			// 	{ type: "text", parent: category, position: position })
 
 			let text = Emojis.process(guild, this.MESSAGE)
 			text = new Discord.MessageEmbed()
