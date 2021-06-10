@@ -2,20 +2,23 @@ const fs = require('fs')
 const Discord = require("discord.js")
 const Emojis = require("../emojis.js")
 const Plugin = require("../plugin.js")
+
+const CSV = require('csv-writer').createArrayCsvStringifier
+const Readable = require('stream').Readable
+
 module.exports = class Raids extends Plugin {
-	COMMAND = '!!raid'
 	CHANNEL_NAME = (date) => `sortie-${date.getDate().toString().padStart(2, "0")}-${(date.getMonth()+1).toString().padStart(2, "0")}`
 	CHANNEL_PATTERN = /^sortie-\d{2}-\d{2}$/
  	ROLES = new Map([
 		["ranger_druid", "Druide"],
 		["guardian_firebrand", "HFB"],
-		["revenant", "Alacren"],
-		["mesmer_chronomancer", "Quickness"],
-		["warrior_berserker", "Bannerslave"],
+		["revenant_renegade", "Alac"],
+		["mesmer_chronomancer", "Quick"],
+		["warrior_berserker", "BS"],
 		["Protection", "Tank"],
 		["guardian_dragonhunter_", "pDPS"],
 		["ele_tempest", "cDPS"],
-		["commander_blue", "Commandant"]
+		["commander_blue", "Com"]
 	])
 	UNREGISTER = "❌"
 
@@ -81,15 +84,71 @@ module.exports = class Raids extends Plugin {
 			.sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()))
 		const embed = new Discord.MessageEmbed(message.embeds[0])
 		embed.fields = []
-		if (registrations.length > 0) {
+		const size = registrations.length
+		if (size > 0) {
 			const fields = this.split_in_fields(registrations)
 			let first = true
 			for (const field of fields) {
-				embed.addField(first ? "Inscrits" : "\u200b", field)
+				embed.addField(first ? `${size} inscrits` : "\u200b", field)
 				first = false
 			}
 		}
 		message.edit(embed)
+	}
+
+	async create_new_raid(message, date) {
+	 	date = new Date(date)
+		if (isNaN(date)) return
+		message.delete()
+		const source_channel = message.channel
+		const category = source_channel.parent
+		const position = source_channel.position + 1
+		const channel_name = this.CHANNEL_NAME(date)
+		const guild = message.guild
+
+		const channels = category.children
+		const channel = channels.find(c => c.name == channel_name)
+		// const channel = await guild.channels.create(channel_name,
+		// 	{ type: "text", parent: category, position: position })
+
+		let text = Emojis.process(guild, this.MESSAGE)
+		text = new Discord.MessageEmbed()
+			.setTitle(`Sorti du ${date.toLocaleDateString()}`)
+			.setDescription(text)
+		const registrations = await channel.send(text)
+		for (const role of this.ROLES.keys()) {
+			const emoji = Emojis.emoji(guild, role)
+			if (emoji == undefined) continue
+			await registrations.react(emoji)
+		}
+		await registrations.react(this.UNREGISTER)
+	}
+
+	async export_registrations(message, url) {
+		// https://discord.com/channels/469838481770938368/847105085921820682/847105153613037569
+		url = new URL(url)
+		const path = url.pathname
+		let [_1, _2, guildId, channelId, messageId] = path.split("/")
+		const channel = await this.client.channels.fetch(channelId)
+		const raid_message = await channel.messages.fetch(messageId)
+		const registrations = await this.calculate_registrations(raid_message)
+		const headers = ['', ...this.ROLES.values()]
+		const csv = CSV({header: headers})
+		const records = []
+		for (const [name, roles] of registrations) {
+			const record = [name]
+			for (const emote of this.ROLES.keys()) {
+				record.push(roles.includes(emote) ? "X" : "")
+			}
+			records.push(record)
+		}
+		const text = csv.getHeaderString() + csv.stringifyRecords(records)
+		const attachment = new Discord.MessageAttachment(Readable.from(text), "registrations.csv")
+		const embed = new Discord.MessageEmbed()
+			.setTitle("Inscriptions")
+			.setDescription(text)
+			.attachFiles([attachment])
+		message.channel.send(embed)
 	}
 
 	constructor(client) {
@@ -102,33 +161,14 @@ module.exports = class Raids extends Plugin {
 			if (message.author.bot) return
 			const content = message.content
 			const [command, ...args] = content.trim().split(/\s+/)
-			if (command != this.COMMAND) return
-
-			const date = new Date(args[0])
-			if (isNaN(date)) return
-			message.delete()
-			const source_channel = message.channel
-			const category = source_channel.parent
-			const position = source_channel.position + 1
-			const channel_name = this.CHANNEL_NAME(date)
-			const guild = message.guild
-
-			const channels = category.children
-			const channel = channels.find(c => c.name == channel_name)
-			// const channel = await guild.channels.create(channel_name,
-			// 	{ type: "text", parent: category, position: position })
-
-			let text = Emojis.process(guild, this.MESSAGE)
-			text = new Discord.MessageEmbed()
-				.setTitle(`Sorti du ${date.toLocaleDateString()}`)
-				.setDescription(text)
-			const registrations = await channel.send(text)
-			for (const role of this.ROLES.keys()) {
-				const emoji = Emojis.emoji(guild, role)
-				if (emoji == undefined) continue
-				await registrations.react(emoji)
+			switch (command) {
+				case "!!raid":
+					this.create_new_raid(message, ...args)
+					break;
+				case "!!registrations":
+					this.export_registrations(message, ...args)
+					break;
 			}
-			await registrations.react(this.UNREGISTER)
 		})
 		this.client.on("messageReactionAdd", this.handleReaction(async (reaction, user) => {
 			const message = reaction.message

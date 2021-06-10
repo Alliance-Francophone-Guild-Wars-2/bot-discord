@@ -2,7 +2,7 @@ Merci de vous inscrire à cette sortie en cliquant sur les réactions associées
 
   - :ranger_druid: Druide
   - :guardian_firebrand: HFB
-  - :revenant: Alacren
+  - :revenant_renegade: Alacren
   - :mesmer_chronomancer: Quickness (qChrono ou qFB)
   - :warrior_berserker: Bannerslave
   - :Protection: Tank
