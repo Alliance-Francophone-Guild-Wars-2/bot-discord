@@ -20,6 +20,7 @@ module.exports = class Raids extends Plugin {
 		["ele_tempest", "cDPS"],
 		["commander_blue", "Com"]
 	])
+	LEVELS = new Map([["1️⃣", "1"], ["2️⃣", 2], ["3️⃣", 3]])
 	UNREGISTER = "❌"
 
 	handleReaction(fn) {
@@ -42,19 +43,29 @@ module.exports = class Raids extends Plugin {
 	}
 
 	async calculate_registrations(message) {
+		const guild = message.guild
 		const reactions = message.reactions.cache
 		const registrations = new Map()
 		for (const reaction of reactions.values()) {
 			const users = await reaction.users.fetch()
 			for (const user of users.values()) {
 				if (user.id == this.client.user.id) continue
-				const name = user.username
-				let roles = registrations.get(name)
-				if (roles == undefined) {
-					roles = []
-					registrations.set(name, roles)
+
+				let member = guild.member(user)
+				const name = member.displayName || user.username
+
+				let registration = registrations.get(name)
+				if (registration == undefined) {
+					registration = [[], undefined]
+					registrations.set(name, registration)
 				}
-				roles.push(reaction.emoji.name)
+
+				const emoji = reaction.emoji
+				const n = emoji.name
+				const level = this.LEVELS.get(n)
+				if (level) registration[1] = emoji
+				const role = this.ROLES.get(n)
+				if (role) registration[0].push(emoji)
 			}
 		}
 		return registrations
@@ -80,7 +91,20 @@ module.exports = class Raids extends Plugin {
 		const guild = message.guild
 		let registrations = await this.calculate_registrations(message)
 		registrations = Array.from(registrations)
-			.map(([name, roles]) => `${name} ${roles.map(r => Emojis.emoji(guild, r)).join("")}`)
+			.map(([name, registration]) => {
+				let [roles, level] = registration
+				if (level == undefined) {
+					level = ''
+				} else {
+					level = ` ${level}`
+				}
+				if (roles.length == 0) {
+					roles = ''
+				} else {
+					roles = ` ${roles.join("")}`
+				}
+				return `${name}${level}${roles}`
+			})
 			.sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()))
 		const embed = new Discord.MessageEmbed(message.embeds[0])
 		embed.fields = []
@@ -121,6 +145,9 @@ module.exports = class Raids extends Plugin {
 			if (emoji == undefined) continue
 			await registrations.react(emoji)
 		}
+		for (const level of this.LEVELS.keys()) {
+			await registrations.react(level)
+		}
 		await registrations.react(this.UNREGISTER)
 	}
 
@@ -132,13 +159,15 @@ module.exports = class Raids extends Plugin {
 		const channel = await this.client.channels.fetch(channelId)
 		const raid_message = await channel.messages.fetch(messageId)
 		const registrations = await this.calculate_registrations(raid_message)
-		const headers = ['', ...this.ROLES.values()]
+		const headers = ["name", "level", ...this.ROLES.values()]
 		const csv = CSV({header: headers})
 		const records = []
-		for (const [name, roles] of registrations) {
+		for (const [name, registration] of registrations) {
 			const record = [name]
+			const [roles, level] = registration
+			record.push(level.name)
 			for (const emote of this.ROLES.keys()) {
-				record.push(roles.includes(emote) ? "X" : "")
+				record.push(roles.map(r => r.name).includes(emote) ? "X" : "")
 			}
 			records.push(record)
 		}
