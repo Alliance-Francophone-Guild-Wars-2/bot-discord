@@ -165,7 +165,7 @@ module.exports = class Raids extends Plugin {
 		for (const [name, registration] of registrations) {
 			const record = [name]
 			const [roles, level] = registration
-			record.push(level.name)
+			record.push(level == undefined ? "" : level.name)
 			for (const emote of this.ROLES.keys()) {
 				record.push(roles.map(r => r.name).includes(emote) ? "X" : "")
 			}
