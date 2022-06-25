@@ -12,12 +12,12 @@ module.exports = class Raids extends Plugin {
  	ROLES = new Map([
 		["ranger_druid", "Druide"],
 		["guardian_firebrand", "HFB"],
-		["revenant_renegade", "Alac"],
-		["mesmer_chronomancer", "Quick"],
+		["Alacrity", "Alac"],
+		["Quickness", "Quick"],
 		["warrior_berserker", "BS"],
 		["Protection", "Tank"],
-		["guardian_dragonhunter_", "pDPS"],
-		["ele_tempest", "cDPS"],
+		["Might", "pDPS"],
+		["burning", "cDPS"],
 		["commander_blue", "Com"]
 	])
 	LEVELS = new Map([["1️⃣", "1"], ["2️⃣", 2], ["3️⃣", 3]])
