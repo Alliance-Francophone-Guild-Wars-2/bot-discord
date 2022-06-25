@@ -15,3 +15,4 @@ const plugins = pluginsFiles.map((pluginFile) => {
 	return new clazz(client)
 })
 client.login(process.env.TOKEN)
+client.once("ready", async () => { console.log("Bot ready!") })
