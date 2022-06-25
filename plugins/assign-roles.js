@@ -8,7 +8,8 @@ module.exports = class AssignRole extends Plugin {
 		    ["catmander_red", "PvE"],
 		    ["Protection", "McM"],
 		    ["ranger_druid", "Raideurs"],
-		    ["guardian_firebrand", "Fractales"]
+		    ["guardian_firebrand", "Fractales"],
+			["🎲", "jds"]
 		])],
 
 		[process.env.MESSAGE_ROLES_WvW, new Map([
