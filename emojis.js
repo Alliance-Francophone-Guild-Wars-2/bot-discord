@@ -20,6 +20,8 @@ module.exports = class Emojis {
 
     static emoji(guild, name) {
         const emojis = Emojis.emojis(guild)
-        return emojis.get(name)
+        let emoji = emojis.get(name)
+        if (emoji != undefined) return emoji
+        return name
     }
 }
