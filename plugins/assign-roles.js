@@ -9,6 +9,7 @@ module.exports = class AssignRole extends Plugin {
 		    ["Protection", "McM"],
 		    ["ranger_druid", "Raideurs"],
 		    ["guardian_firebrand", "Fractales"],
+			["necro_reaper", "PvP"],
 			["🎲", "jds"]
 		])],
 
