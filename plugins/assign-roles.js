@@ -5,7 +5,7 @@ module.exports = class AssignRole extends Plugin {
  	ROLES_CHANNEL_NAME = "assignation-de-role"
  	ROLES = new Map([
 		[process.env.MESSAGE_ROLES, new Map([
-		    ["catmander_red", "PvE"],
+		    ["commander_red", "PvE"],
 		    ["Protection", "McM"],
 		    ["ranger_druid", "Raideurs"],
 		    ["guardian_firebrand", "Fractales"],
@@ -15,7 +15,7 @@ module.exports = class AssignRole extends Plugin {
 
 		[process.env.MESSAGE_ROLES_WvW, new Map([
 			["commander_green", "MerDeJade"],
-			["commander_white", "RocheAugure"],
+			["commander_blue", "RocheAugure"],
 			["commander_cyan", "FortRanik"],
 			["commander_pink", "PierreArborea"],
 			["commander_yellow", "Vizunah"]
