@@ -7,7 +7,7 @@ module.exports = class Plugin {
 		return async (reaction, user) => {
 			try {
 				if (reaction.partial) await reaction.fetch()
-				if (reaction.me || user.bot) return
+				if (user.bot) return
 				const message = reaction.message
 				if (message.partial) await message.fetch()
 				fn(reaction, user)
