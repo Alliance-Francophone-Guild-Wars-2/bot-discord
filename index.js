@@ -14,8 +14,11 @@ const fs = require('fs')
 const pluginsDir = path.join(__dirname, "plugins")
 const pluginsFiles = fs.readdirSync(pluginsDir)
 const plugins = pluginsFiles.map((pluginFile) => {
-	const clazz = require(path.join(pluginsDir, pluginFile))
-	return new clazz(client)
+  if (!pluginFile.endsWith(".js")) {
+    return
+  }
+  const clazz = require(path.join(pluginsDir, pluginFile))
+  return new clazz(client)
 })
 client.login(process.env.TOKEN)
 client.once("ready", async () => {
