@@ -8,7 +8,7 @@
   "license": "AGPL-3.0-or-later",
   "dependencies": {
     "csv-writer": "1.6.x",
-    "discord.js": "13.x",
+    "discord.js": "14.x",
     "dotenv": "16.x"
   }
 }

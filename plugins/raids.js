@@ -1,5 +1,5 @@
 const fs = require('fs')
-const Discord = require("discord.js")
+const {Discord, Events, ChannelType, EmbedBuilder} = require("discord.js")
 const Emojis = require("../emojis.js")
 const Plugin = require("../plugin.js")
 
@@ -88,7 +88,6 @@ module.exports = class Raids extends Plugin {
   }
 
   async update_registrations(message) {
-    const guild = message.guild
     let registrations = await this.calculate_registrations(message)
     registrations = Array.from(registrations)
       .map(([name, registration]) => {
@@ -106,17 +105,21 @@ module.exports = class Raids extends Plugin {
         return `${name}${level}${roles}`
       })
       .sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()))
-    const embed = new Discord.MessageEmbed(message.embeds[0])
-    embed.fields = []
+    const embed = new EmbedBuilder(message.embeds[0])
     const size = registrations.length
+    let result = []
     if (size > 0) {
       const fields = this.split_in_fields(registrations)
       let first = true
       for (const field of fields) {
-        embed.addField(first ? `${size} inscrits` : "\u200b", field)
+        result.push({
+          name: first ? `${size} inscrits` : "\u200b",
+          value: field
+        })
         first = false
       }
     }
+    embed.setFields(result)
     message.edit({embeds: [embed]})
   }
 
@@ -132,11 +135,15 @@ module.exports = class Raids extends Plugin {
 
     const channels = category.children
     // const channel = channels.find(c => c.name == channel_name)
-    const channel = await guild.channels.create(channel_name,
-      {type: "text", parent: category, position: position})
+    const channel = await guild.channels.create({
+      name: channel_name,
+      type: ChannelType.GuildText,
+      parent: category,
+      position: position,
+    })
 
     let text = Emojis.process(guild, this.MESSAGE)
-    text = new Discord.MessageEmbed()
+    text = new EmbedBuilder()
       .setTitle(`Sorti du ${date.toLocaleDateString()}`)
       .setDescription(text)
     const registrations = await channel.send({embeds: [text]})
@@ -185,25 +192,25 @@ module.exports = class Raids extends Plugin {
     let message = fs.readFileSync("./assets/messages/raid.md", "UTF-8")
     this.MESSAGE = message
 
-    this.client.on("messageCreate", async message => {
+    this.client.on(Events.MessageCreate, async message => {
       if (message.author.bot) return
       const content = message.content
       const [command, ...args] = content.trim().split(/\s+/)
       switch (command) {
         case "!!raid":
-          this.create_new_raid(message, ...args)
+          await this.create_new_raid(message, ...args)
           break;
         case "!!registrations":
-          this.export_registrations(message, ...args)
+          await this.export_registrations(message, ...args)
           break;
       }
     })
-    this.client.on("messageReactionAdd", this.handleReaction(async (reaction, user) => {
+    this.client.on(Events.MessageReactionAdd, this.handleReaction(async (reaction, user) => {
       const message = reaction.message
       if (reaction.emoji.name == this.UNREGISTER) await this.remove_reactions(message, user)
       await this.update_registrations(message)
     }))
-    this.client.on("messageReactionRemove", this.handleReaction(async (reaction, user) => {
+    this.client.on(Events.MessageReactionRemove, this.handleReaction(async (reaction, user) => {
       const message = reaction.message
       await this.update_registrations(message)
     }))
